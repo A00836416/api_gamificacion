@@ -1,46 +1,40 @@
 import express from 'express';
-import { PORT } from './config.js';
-import { UserRepository } from './user_repository.js';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { connectDB } from './config/db.js';
+import authRoutes from './routes/auth.js';
+import { authMiddleware, isAdmin } from './middlewares/auth.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
+
+await connectDB();
+
 app.use(express.json());
+app.use(cookieParser());
 
-app.get('/', (req, res) => {
-  res.send('¡Hola Mundo!');
-});
-
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await UserRepository.login({ username, password });
-    res.send({ user })
-  } catch (error) {
-    res.status(401).send(error.message);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días
   }
+}));
 
+app.use('/auth', authRoutes);
+
+app.get('/protected', authMiddleware, (req, res) => {
+  res.json({ message: 'Esta es una ruta protegida', userId: req.user.id, rol: req.user.rol });
 });
 
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  console.log(req.body);
-
-  try {
-    const id = await UserRepository.create({ username, password });
-    res.send({ id });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
+app.get('/admin', authMiddleware, isAdmin, (req, res) => {
+  res.json({ message: 'Esta es una ruta solo para administradores' });
 });
 
-app.post('/logout', (req, res) => {
-  // Implementar lógica de logout
-});
+const PORT = process.env.PORT || 3000;
 
-app.post('/protected', (req, res) => {
-  // Implementar lógica para ruta protegida
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
