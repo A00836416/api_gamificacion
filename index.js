@@ -2,10 +2,15 @@ import express from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import departamentoRoutes from './routes/departamentoRoutes.js';
+import tareaRoutes from './routes/tareaRoutes.js';
 import { authMiddleware, isAdmin } from './middlewares/auth.js';
-import dotenv from 'dotenv';
+import tareaRutaRoutes from './routes/tareaRutaRoutes.js';
+import empleadoRoutes from './routes/empleadoRoutes.js';
+import progresoTareaRoutes from './routes/progresoTareaRoutes.js';
 
 dotenv.config();
 
@@ -34,7 +39,16 @@ app.use(session({
   }
 }));
 
+// Rutas de autenticación
 app.use('/auth', authRoutes);
+
+// Rutas protegidas
+app.use('/api/departamentos', authMiddleware, departamentoRoutes);
+app.use('/api/tareas', authMiddleware, tareaRoutes);
+
+app.use('/api/tarea-ruta', tareaRutaRoutes);
+app.use('/api/empleados', empleadoRoutes);
+app.use('/api/progreso-tarea', progresoTareaRoutes);
 
 app.get('/protected', authMiddleware, (req, res) => {
   res.json({ message: 'Esta es una ruta protegida', userId: req.user.id, rol: req.user.rol });

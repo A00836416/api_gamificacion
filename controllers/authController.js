@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByUserName, updateLastAccess } from '../models/userModel.js';
+import { createUser, findUserByUserName, updateLastAccess } from '../services/userService.js';
 
 export async function register(req, res) {
     try {
