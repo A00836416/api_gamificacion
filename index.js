@@ -45,6 +45,28 @@ app.use(session({
   }
 }));
 
+// Middleware para logging de solicitudes
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
+// Middleware mejorado para manejar archivos Brotli
+app.use((req, res, next) => {
+  if (req.url.includes('/unity/') && req.url.endsWith('.wasm.br')) {
+    const filePath = path.join(__dirname, 'public', req.url);
+    if (fs.existsSync(filePath)) {
+      res.set('Content-Type', 'application/wasm');
+      res.set('Content-Encoding', 'br');
+      fs.createReadStream(filePath).pipe(res);
+    } else {
+      console.log(`Archivo .wasm.br no encontrado: ${req.url}`);
+      next();
+    }
+  } else {
+    next();
+  }
+});
 // Rutas de autenticación
 app.use('/auth', authRoutes);
 
@@ -67,15 +89,27 @@ app.get('/auth/check-auth', authMiddleware, (req, res) => {
   res.json({ isAuthenticated: true, user: req.user });
 });
 
-// Configuración para servir el juego de Unity
 const unityPath = path.join(__dirname, 'public/unity');
+console.log('Buscando Unity en:', unityPath);
 if (fs.existsSync(unityPath)) {
-  // Servir los archivos estáticos de Unity solo si la carpeta existe
-  app.use('/unity', express.static(unityPath));
-
-  // Ruta para el juego de Unity
+  console.log('Carpeta Unity encontrada');
+  app.use('/unity', express.static(unityPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.br')) {
+        res.set('Content-Encoding', 'br');
+        res.set('Content-Type', 'application/javascript');
+      }
+    }
+  }));
   app.get('/game', (req, res) => {
-    res.sendFile(path.join(unityPath, 'index.html'));
+    const gamePath = path.join(unityPath, 'index.html');
+    console.log('Intentando servir el juego desde:', gamePath);
+    if (fs.existsSync(gamePath)) {
+      res.sendFile(gamePath);
+    } else {
+      console.log('Archivo index.html no encontrado en:', gamePath);
+      res.status(404).send('Juego no encontrado');
+    }
   });
   console.log('Juego de Unity disponible en /game');
 } else {
