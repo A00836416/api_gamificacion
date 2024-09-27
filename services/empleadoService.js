@@ -84,6 +84,21 @@ export async function asignarEmpleadoADepartamento(empleadoID, departamentoID) {
     }
 }
 
+export async function obtenerEmpleados() {
+    try {
+        const result = await sql.query`
+  SELECT e.empleadoID, u.nombre, u.apellidoPaterno, u.apellidoMaterno, e.posicion, d.nombre AS departamento, u.correoElectronico
+FROM Empleado e
+INNER JOIN Usuario u ON e.usuarioID = u.usuarioID
+LEFT JOIN Departamento d ON e.departamentoID = d.departamentoID
+    `;
+        return result.recordset;
+    } catch (error) {
+        console.error('Error al obtener empleados por departamento:', error);
+        throw error;
+    }
+}
+
 export async function obtenerEmpleadosPorDepartamento(departamentoID) {
     try {
         const result = await sql.query`
@@ -98,6 +113,7 @@ export async function obtenerEmpleadosPorDepartamento(departamentoID) {
         throw error;
     }
 }
+
 
 export async function actualizarPosicionEmpleado(empleadoID, nuevaPosicion) {
     try {

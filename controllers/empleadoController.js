@@ -36,6 +36,15 @@ export async function asignarEmpleadoADepartamento(req, res) {
     }
 }
 
+export async function obtenerEmpleados(req, res) {
+    try {
+        const empleados = await empleadoService.obtenerEmpleados();
+        res.json(empleados);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener empleados por departamento' });
+    }
+}
+
 export async function obtenerEmpleadosPorDepartamento(req, res) {
     try {
         const { departamentoID } = req.params;

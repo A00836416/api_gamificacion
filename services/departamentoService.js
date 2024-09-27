@@ -18,7 +18,19 @@ export async function crearDepartamento(nombre, descripcion) {
 export async function obtenerDepartamentos() {
   try {
     const result = await sql.query`
-      SELECT * FROM Departamento WHERE deletedAt IS NULL
+      SELECT 
+        d.departamentoID,
+        d.nombre,
+        d.descripcion,
+        d.createdAt,
+        d.updatedAt,
+        (SELECT COUNT(*) 
+         FROM Empleado e 
+         WHERE e.departamentoID = d.departamentoID AND e.deletedAt IS NULL) AS cantidadEmpleados
+      FROM 
+        Departamento d
+      WHERE 
+        d.deletedAt IS NULL
     `;
     return result.recordset;
   } catch (error) {

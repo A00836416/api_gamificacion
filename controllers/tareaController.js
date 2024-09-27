@@ -3,12 +3,19 @@ import * as tareaService from '../services/tareaService.js';
 
 export async function crearTarea(req, res) {
     try {
-        const tareaId = await tareaService.crearTarea(req.body);
+        const { empleadosIDs, ...tarea } = req.body;
+        console.log('Datos recibidos en el controlador:', { tarea, empleadosIDs });
+
+        const tareaId = await tareaService.crearTarea(tarea, empleadosIDs);
+        console.log('Tarea creada con ID:', tareaId);
+
         res.status(201).json({ id: tareaId, message: 'Tarea creada exitosamente' });
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear la tarea' });
+        console.error('Error en el controlador al crear la tarea:', error);
+        res.status(500).json({ error: 'Error al crear la tarea', details: error.message });
     }
 }
+
 
 export async function obtenerTareas(req, res) {
     try {

@@ -1,16 +1,31 @@
 
 import { sql } from '../config/db.js';
 
-export async function crearTarea(tarea) {
+export async function crearTarea(tarea, empleadosIDs = null) {
   try {
+    const empleadosIDsString = empleadosIDs && empleadosIDs.length > 0 ? empleadosIDs.join(',') : null;
+    console.log('empleadosIDsString:', empleadosIDsString); // Para depuración
+
     const result = await sql.query`
-      INSERT INTO Tarea (nombre, descripcion, duracionEstimada, experienciaBase, fechaLimite, esObligatoria)
-      OUTPUT INSERTED.tareaID
-      VALUES (${tarea.nombre}, ${tarea.descripcion}, ${tarea.duracionEstimada}, ${tarea.experienciaBase}, ${tarea.fechaLimite}, ${tarea.esObligatoria})
+      EXEC sp_CrearTareaConAsignaciones
+        @nombre = ${tarea.nombre},
+        @descripcion = ${tarea.descripcion},
+        @duracionEstimada = ${tarea.duracionEstimada},
+        @experienciaBase = ${tarea.experienciaBase},
+        @fechaLimite = ${tarea.fechaLimite},
+        @esObligatoria = ${tarea.esObligatoria},
+        @empleadosIDs = ${empleadosIDsString}
     `;
-    return result.recordset[0].tareaID;
+
+    console.log('Resultado de sp_CrearTareaConAsignaciones:', result);
+
+    if (result.recordset && result.recordset.length > 0) {
+      return result.recordset[0].tareaID;
+    } else {
+      throw new Error('No se recibió un ID de tarea válido del procedimiento almacenado.');
+    }
   } catch (error) {
-    console.error('Error al crear tarea:', error);
+    console.error('Error detallado al crear tarea:', error);
     throw error;
   }
 }
@@ -18,7 +33,26 @@ export async function crearTarea(tarea) {
 export async function obtenerTareas() {
   try {
     const result = await sql.query`
-      SELECT * FROM Tarea WHERE deletedAt IS NULL
+      SELECT 
+        t.tareaID,
+        t.nombre,
+        (SELECT descripcion FROM Tarea WHERE tareaID = t.tareaID) AS descripcion,
+        t.duracionEstimada,
+        t.experienciaBase,
+        t.fechaLimite,
+        t.esObligatoria,
+        t.createdAt,
+        t.updatedAt,
+        COUNT(pt.empleadoID) AS cantidadEmpleados
+      FROM 
+        Tarea t
+      LEFT JOIN 
+        ProgresoTarea pt ON t.tareaID = pt.tareaID
+      WHERE 
+        t.deletedAt IS NULL
+      GROUP BY
+        t.tareaID, t.nombre, t.duracionEstimada, t.experienciaBase,
+        t.fechaLimite, t.esObligatoria, t.createdAt, t.updatedAt
     `;
     return result.recordset;
   } catch (error) {
