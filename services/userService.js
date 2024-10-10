@@ -42,11 +42,8 @@ async function findUserById(usuarioID) {
         const request = new sql.Request();
         request.input('usuarioID', sql.UniqueIdentifier, usuarioID);
         const result = await request.query`
-        SELECT usuarioID, userName, nombre, apellidoPaterno, apellidoMaterno, 
-               fechaNacimiento, correoElectronico, esActivo, ultimoAcceso, rol
-        FROM Usuario 
-        WHERE usuarioID = @usuarioID
-      `;
+            SELECT * FROM vw_GetUserExperienceLevel WHERE usuarioID = @usuarioID;
+        `;
         return result.recordset[0];
     } catch (error) {
         console.error('Error al buscar usuario por ID:', error);

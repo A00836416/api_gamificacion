@@ -7,7 +7,9 @@ function isValidUUID(uuid) {
 
 export async function getUser(req, res) {
     try {
-        const usuarioID = req.params.id;
+        const usuarioID = req.user.id;
+
+        console.log(usuarioID);
 
         if (!isValidUUID(usuarioID)) {
             return res.status(400).json({ error: 'ID de usuario inválido' });
