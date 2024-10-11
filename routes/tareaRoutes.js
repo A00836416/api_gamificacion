@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post('/', authMiddleware, isAdmin, tareaController.crearTarea);
 router.get('/', authMiddleware, tareaController.obtenerTareas);
+router.get('/empleado', authMiddleware, tareaController.obtenerTareasEmpleado);
 router.get('/:id', authMiddleware, tareaController.obtenerTarea);
 router.put('/:id', authMiddleware, isAdmin, tareaController.actualizarTarea);
 router.delete('/:id', authMiddleware, isAdmin, tareaController.eliminarTarea);

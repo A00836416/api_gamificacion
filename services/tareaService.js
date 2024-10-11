@@ -61,6 +61,49 @@ export async function obtenerTareas() {
   }
 }
 
+export async function obtenerTareasEmpleado(empleadoID) {
+  try {
+    const result = await sql.query`
+    SELECT * FROM vw_TareasConProgresoEmpleado
+    WHERE empleadoID = ${empleadoID} OR empleadoID IS NULL
+`;
+
+
+    // Procesamos el resultado para agrupar el progreso del empleado
+    const tareas = result.recordset.map(row => ({
+      tareaID: row.tareaID,
+      nombreTarea: row.nombreTarea,
+      descripcionTarea: row.descripcionTarea,
+      duracionEstimada: row.duracionEstimada,
+      experienciaBase: row.experienciaBase,
+      fechaCreacionTarea: row.fechaCreacionTarea,
+      fechaLimite: row.fechaLimite,
+      esObligatoria: row.esObligatoria,
+      dimension: row.dimensionID ? {
+        dimensionID: row.dimensionID,
+        nombre: row.nombreDimension
+      } : null,
+      nivel: row.nivelID ? {
+        nivelID: row.nivelID,
+        nombre: row.nombreNivel,
+        numero: row.numeroNivel
+      } : null,
+      progresoEmpleado: row.progresoID ? {
+        progresoID: row.progresoID,
+        fechaInicio: row.fechaInicioProgreso,
+        fechaFinalizacion: row.fechaFinalizacionProgreso,
+        estado: row.estadoTarea,
+        tiempoCompletado: row.tiempoCompletado
+      } : null
+    }));
+
+    return tareas;
+  } catch (error) {
+    console.error('Error al obtener tareas con progreso del empleado:', error);
+    throw error;
+  }
+}
+
 export async function obtenerTareaPorId(id) {
   try {
     const result = await sql.query`

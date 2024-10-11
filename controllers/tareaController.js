@@ -39,6 +39,24 @@ export async function obtenerTarea(req, res) {
     }
 }
 
+export async function obtenerTareasEmpleado(req, res) {
+    try {
+
+        const usuarioID = req.user.id;
+
+        const tareas = await tareaService.obtenerTareasEmpleado(usuarioID);
+
+        if (tareas.length === 0) {
+            return res.status(404).json({ mensaje: 'No se encontraron tareas para este usuario' });
+        }
+
+        res.json(tareas);
+    } catch (error) {
+        console.error('Error en el controlador al obtener tareas del empleado:', error);
+        res.status(500).json({ error: 'Error al obtener las tareas del empleado' });
+    }
+}
+
 export async function actualizarTarea(req, res) {
     try {
         await tareaService.actualizarTarea(req.params.id, req.body);
