@@ -13,7 +13,7 @@ router.get('/:id', authMiddleware, tareaController.obtenerTarea);
 router.put('/:id', authMiddleware, isAdmin, tareaController.actualizarTarea);
 router.delete('/:id', authMiddleware, isAdmin, tareaController.eliminarTarea);
 router.post('/iniciar', authMiddleware, tareaController.iniciarTarea);
-router.post('/completar', authMiddleware, tareaController.completarTarea);
-router.post('/verificar', authMiddleware, isAdmin, tareaController.verificarTarea);
+router.put('/completar', authMiddleware, tareaController.completarTarea);
+router.put('/verificar', authMiddleware, isAdmin, tareaController.verificarTarea);
 
 export default router;
