@@ -74,3 +74,40 @@ export async function eliminarTarea(req, res) {
         res.status(500).json({ error: 'Error al eliminar la tarea' });
     }
 }
+
+export async function iniciarTarea(req, res) {
+    try {
+        const empleadoID = req.user.id; // Obtenemos el ID del empleado del token
+        const { tareaID } = req.body;
+        console.log('oeee');
+        await tareaService.iniciarTarea(empleadoID, tareaID);
+        res.status(200).json({ message: 'Tarea iniciada exitosamente' });
+    } catch (error) {
+        console.error('Error al iniciar la tarea:', error);
+        res.status(500).json({ error: 'Error al iniciar la tarea', details: error.message });
+    }
+}
+
+export async function completarTarea(req, res) {
+    try {
+        const empleadoID = req.user.id; // Obtenemos el ID del empleado del token
+        const { tareaID } = req.body;
+        await tareaService.completarTarea(empleadoID, tareaID);
+        res.status(200).json({ message: 'Tarea completada exitosamente' });
+    } catch (error) {
+        console.error('Error al completar la tarea:', error);
+        res.status(500).json({ error: 'Error al completar la tarea', details: error.message });
+    }
+}
+
+export async function verificarTarea(req, res) {
+    try {
+        const administradorID = req.user.id; // Obtenemos el ID del administrador del token
+        const { progresoID } = req.body;
+        await tareaService.verificarTarea(administradorID, progresoID);
+        res.status(200).json({ message: 'Tarea verificada exitosamente' });
+    } catch (error) {
+        console.error('Error al verificar la tarea:', error);
+        res.status(500).json({ error: 'Error al verificar la tarea', details: error.message });
+    }
+}

@@ -61,15 +61,13 @@ export async function obtenerTareas() {
   }
 }
 
-export async function obtenerTareasEmpleado(empleadoID) {
+export async function obtenerTareasEmpleado(usuarioID) {
   try {
     const result = await sql.query`
-    SELECT * FROM vw_TareasConProgresoEmpleado
-    WHERE empleadoID = ${empleadoID} OR empleadoID IS NULL
-`;
+      SELECT * FROM vw_TareasConProgresoEmpleado
+      WHERE usuarioID = ${usuarioID} OR usuarioID IS NULL
+    `;
 
-
-    // Procesamos el resultado para agrupar el progreso del empleado
     const tareas = result.recordset.map(row => ({
       tareaID: row.tareaID,
       nombreTarea: row.nombreTarea,
@@ -141,6 +139,33 @@ export async function eliminarTarea(id) {
     `;
   } catch (error) {
     console.error('Error al eliminar tarea:', error);
+    throw error;
+  }
+}
+
+export async function iniciarTarea(empleadoID, tareaID) {
+  try {
+    await sql.query`EXEC sp_IniciarTarea @usuarioID = ${empleadoID}, @tareaID = ${tareaID}`;
+  } catch (error) {
+    console.error('Error al iniciar tarea:', error);
+    throw error;
+  }
+}
+
+export async function completarTarea(empleadoID, tareaID) {
+  try {
+    await sql.query`EXEC sp_CompletarTarea @usuarioID = ${empleadoID}, @tareaID = ${tareaID}`;
+  } catch (error) {
+    console.error('Error al completar tarea:', error);
+    throw error;
+  }
+}
+
+export async function verificarTarea(administradorID, progresoID) {
+  try {
+    await sql.query`EXEC sp_VerificarTarea @usuarioID = ${administradorID}, @progresoID = ${progresoID}`;
+  } catch (error) {
+    console.error('Error al verificar tarea:', error);
     throw error;
   }
 }
