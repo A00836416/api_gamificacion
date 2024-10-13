@@ -6,14 +6,19 @@ import { isAdmin } from '../middlewares/isAdmin.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, isAdmin, tareaController.crearTarea);
-router.get('/', authMiddleware, tareaController.obtenerTareas);
-router.get('/empleado', authMiddleware, tareaController.obtenerTareasEmpleado);
-router.get('/:id', authMiddleware, tareaController.obtenerTarea);
-router.put('/:id', authMiddleware, isAdmin, tareaController.actualizarTarea);
-router.delete('/:id', authMiddleware, isAdmin, tareaController.eliminarTarea);
-router.post('/iniciar', authMiddleware, tareaController.iniciarTarea);
+// Rutas específicas primero
 router.put('/completar', authMiddleware, tareaController.completarTarea);
-router.put('/verificar', authMiddleware, isAdmin, tareaController.verificarTarea);
+router.post('/iniciar', authMiddleware, tareaController.iniciarTarea);
+router.post('/verificar', authMiddleware, isAdmin, tareaController.verificarTarea);
+router.get('/empleado', authMiddleware, tareaController.obtenerTareasEmpleado);
+
+// Rutas con parámetros después
+router.get('/:id', authMiddleware, tareaController.obtenerTarea);
+router.put('/:id', authMiddleware, tareaController.actualizarTarea);
+router.delete('/:id', authMiddleware, isAdmin, tareaController.eliminarTarea);
+
+// Rutas generales al final
+router.get('/', authMiddleware, tareaController.obtenerTareas);
+router.post('/', authMiddleware, isAdmin, tareaController.crearTarea);
 
 export default router;
