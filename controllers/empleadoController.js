@@ -64,3 +64,23 @@ export async function actualizarPosicionEmpleado(req, res) {
         res.status(500).json({ error: 'Error al actualizar posición del empleado' });
     }
 }
+
+export async function obtenerDetallesEmpleado(req, res) {
+    try {
+        const { empleadoID } = req.params;
+        const detalles = await empleadoService.obtenerDetallesEmpleado(empleadoID);
+        res.json({ detalles });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener detalles del empleado' });
+    }
+}
+
+export async function obtenerTareasEnProgresoEmpleado(req, res) {
+    try {
+        const { empleadoID } = req.params;
+        const tareas = await empleadoService.obtenerTareasPorFaseEmpleado(empleadoID);
+        res.json(tareas);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener tareas en progreso del empleado' });
+    }
+}

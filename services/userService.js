@@ -51,4 +51,24 @@ async function findUserById(usuarioID) {
     }
 }
 
-export { createUser, findUserByUserName, updateLastAccess, findUserById };
+async function updateUser(userData) {
+    try {
+        await sql.query`
+            EXEC sp_ActualizarUsuario 
+                @usuarioID = ${userData.usuarioID},
+                @userName = ${userData.userName},
+                @nombre = ${userData.nombre},
+                @apellidoPaterno = ${userData.apellidoPaterno},
+                @apellidoMaterno = ${userData.apellidoMaterno},
+                @correoElectronico = ${userData.correoElectronico},
+                @sexo = ${userData.sexo},
+                @posicion = ${userData.posicion}
+        `;
+        return { success: true };
+    } catch (error) {
+        console.error('Error al actualizar usuario:', error);
+        throw error;
+    }
+}
+
+export { createUser, findUserByUserName, updateLastAccess, findUserById, updateUser };

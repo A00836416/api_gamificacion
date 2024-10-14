@@ -95,6 +95,7 @@ export async function obtenerTareasEmpleado(usuarioID) {
       } : null
     }));
 
+
     return tareas;
   } catch (error) {
     console.error('Error al obtener tareas con progreso del empleado:', error);

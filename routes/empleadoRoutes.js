@@ -10,6 +10,8 @@ router.post('/asignar-departamento', authMiddleware, isAdmin, empleadoController
 router.get('/', authMiddleware, empleadoController.obtenerEmpleados);
 router.get('/departamento/:departamentoID', authMiddleware, empleadoController.obtenerEmpleadosPorDepartamento);
 router.put('/actualizar-posicion', authMiddleware, isAdmin, empleadoController.actualizarPosicionEmpleado);
+router.get('/:empleadoID/detalles', authMiddleware, empleadoController.obtenerDetallesEmpleado);
+router.get('/:empleadoID/tareas-en-progreso', authMiddleware, empleadoController.obtenerTareasEnProgresoEmpleado);
 
 
 export default router;

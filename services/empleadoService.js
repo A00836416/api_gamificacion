@@ -128,3 +128,29 @@ export async function actualizarPosicionEmpleado(empleadoID, nuevaPosicion) {
     }
 }
 
+export async function obtenerDetallesEmpleado(empleadoID) {
+    try {
+        console.log(empleadoID);
+        const result = await sql.query`EXEC sp_ObtenerDetallesEmpleado @empleadoID = ${empleadoID}`;
+        console.log(result);
+        return result.recordset[0];
+    } catch (error) {
+        console.error('Error al obtener detalles del empleado:', error);
+        throw error;
+    }
+}
+
+export async function obtenerTareasPorFaseEmpleado(empleadoID) {
+    try {
+        const result = await sql.query`
+        SELECT * FROM vw_EmpleadoTareasConProgreso
+        WHERE empleadoID = ${empleadoID}
+        ORDER BY fechaInicio DESC
+    `;
+        return result.recordset;
+    } catch (error) {
+        console.error('Error al obtener tareas por fase del empleado:', error);
+        throw error;
+    }
+}
+
