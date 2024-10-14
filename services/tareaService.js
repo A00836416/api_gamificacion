@@ -164,9 +164,14 @@ export async function completarTarea(empleadoID, tareaID) {
 
 export async function verificarTarea(administradorID, progresoID) {
   try {
-    await sql.query`EXEC sp_VerificarTarea @usuarioID = ${administradorID}, @progresoID = ${progresoID}`;
+    const result = await sql.query`EXEC sp_VerificarTarea @usuarioID = ${administradorID}, @progresoID = ${progresoID}`;
+    if (result.recordset && result.recordset[0] && result.recordset[0].Mensaje) {
+      return result.recordset[0].Mensaje;
+    }
+    throw new Error('Respuesta inesperada del procedimiento almacenado');
   } catch (error) {
     console.error('Error al verificar tarea:', error);
+    // Propagar el error para que pueda ser manejado en el controlador
     throw error;
   }
 }

@@ -102,12 +102,24 @@ export async function completarTarea(req, res) {
 
 export async function verificarTarea(req, res) {
     try {
-        const administradorID = req.user.id; // Obtenemos el ID del administrador del token
+        const administradorID = req.user.id;
         const { progresoID } = req.body;
+
+        console.log('Verificando tarea:', { administradorID, progresoID });
+
         await tareaService.verificarTarea(administradorID, progresoID);
         res.status(200).json({ message: 'Tarea verificada exitosamente' });
     } catch (error) {
-        console.error('Error al verificar la tarea:', error);
-        res.status(500).json({ error: 'Error al verificar la tarea', details: error.message });
+        console.error('Error detallado al verificar la tarea:', error);
+
+        if (error.message.includes('no es un administrador')) {
+            res.status(403).json({ error: 'No tienes permisos de administrador para realizar esta acción' });
+        } else if (error.message.includes('tarea no existe')) {
+            res.status(404).json({ error: 'La tarea especificada no existe' });
+        } else if (error.message.includes('No tienes permiso para verificar esta tarea')) {
+            res.status(403).json({ error: 'No tienes permiso para verificar esta tarea específica' });
+        } else {
+            res.status(500).json({ error: 'Error al verificar la tarea', details: error.message });
+        }
     }
 }
