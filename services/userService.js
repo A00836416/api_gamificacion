@@ -1,5 +1,19 @@
 import { sql } from '../config/db.js';
 
+
+async function updateUserPassword(usuarioID, newPassword) {
+    try {
+        await sql.query`
+            UPDATE Usuario
+            SET contrasena = ${newPassword}
+            WHERE usuarioID = ${usuarioID}
+        `;
+    } catch (error) {
+        console.error('Error al actualizar la contraseña del usuario:', error);
+        throw error;
+    }
+}
+
 async function createUser(userData) {
     try {
         const result = await sql.query`
@@ -42,7 +56,10 @@ async function findUserById(usuarioID) {
         const request = new sql.Request();
         request.input('usuarioID', sql.UniqueIdentifier, usuarioID);
         const result = await request.query`
-            SELECT * FROM vw_GetUserExperienceLevel WHERE usuarioID = @usuarioID;
+            SELECT usuarioID, userName, contrasena, nombre, apellidoPaterno, apellidoMaterno, 
+                   correoElectronico, esActivo, ultimoAcceso, rol, sexo
+            FROM Usuario
+            WHERE usuarioID = @usuarioID;
         `;
         return result.recordset[0];
     } catch (error) {
@@ -71,4 +88,4 @@ async function updateUser(userData) {
     }
 }
 
-export { createUser, findUserByUserName, updateLastAccess, findUserById, updateUser };
+export { createUser, findUserByUserName, updateLastAccess, findUserById, updateUser, updateUserPassword };

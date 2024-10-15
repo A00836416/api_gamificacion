@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByUserName, updateLastAccess } from '../services/userService.js';
+import { createUser, findUserByUserName, updateLastAccess, updateUserPassword, findUserById } from '../services/userService.js';
+
 
 export async function register(req, res) {
     try {
@@ -73,4 +74,39 @@ export function logout(req, res) {
         }
         res.json({ message: 'Sesión cerrada exitosamente' });
     });
+}
+
+
+export async function changePassword(req, res) {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        const user = await findUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // Añadir verificación y logging
+        if (!user.contrasena) {
+            console.error(`Usuario ${userId} no tiene contraseña almacenada`);
+            return res.status(400).json({ error: 'Error en la configuración de la cuenta' });
+        }
+
+        console.log(`Contraseña actual: ${currentPassword}`);
+        console.log(`Contraseña almacenada: ${user.contrasena}`);
+
+        const validPassword = await bcrypt.compare(currentPassword, user.contrasena);
+        if (!validPassword) {
+            return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        await updateUserPassword(userId, hashedNewPassword);
+
+        res.json({ message: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        console.error('Error detallado:', error);
+        res.status(500).json({ error: 'Error al cambiar la contraseña' });
+    }
 }
