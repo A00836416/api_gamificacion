@@ -60,7 +60,6 @@ export async function obtenerTareas() {
     throw error;
   }
 }
-
 export async function obtenerTareasEmpleado(usuarioID) {
   try {
     const result = await sql.query`
@@ -68,33 +67,51 @@ export async function obtenerTareasEmpleado(usuarioID) {
       WHERE usuarioID = ${usuarioID} OR usuarioID IS NULL
     `;
 
-    const tareas = result.recordset.map(row => ({
-      tareaID: row.tareaID,
-      nombreTarea: row.nombreTarea,
-      descripcionTarea: row.descripcionTarea,
-      duracionEstimada: row.duracionEstimada,
-      experienciaBase: row.experienciaBase,
-      fechaCreacionTarea: row.fechaCreacionTarea,
-      fechaLimite: row.fechaLimite,
-      esObligatoria: row.esObligatoria,
-      dimension: row.dimensionID ? {
-        dimensionID: row.dimensionID,
-        nombre: row.nombreDimension
-      } : null,
-      nivel: row.nivelID ? {
-        nivelID: row.nivelID,
-        nombre: row.nombreNivel,
-        numero: row.numeroNivel
-      } : null,
-      progresoEmpleado: row.progresoID ? {
-        progresoID: row.progresoID,
-        fechaInicio: row.fechaInicioProgreso,
-        fechaFinalizacion: row.fechaFinalizacionProgreso,
-        estado: row.estadoTarea,
-        tiempoCompletado: row.tiempoCompletado
-      } : null
-    }));
-
+    const tareas = result.recordset.reduce((acc, row) => {
+      const tarea = acc.find(t => t.tareaID === row.tareaID);
+      if (tarea) {
+        if (row.objetoID) {
+          tarea.objetos.push({
+            objetoID: row.objetoID,
+            nombre: row.nombreObjeto,
+            path: row.pathObjeto
+          });
+        }
+      } else {
+        acc.push({
+          tareaID: row.tareaID,
+          nombreTarea: row.nombreTarea,
+          descripcionTarea: row.descripcionTarea,
+          duracionEstimada: row.duracionEstimada,
+          experienciaBase: row.experienciaBase,
+          fechaCreacionTarea: row.fechaCreacionTarea,
+          fechaLimite: row.fechaLimite,
+          esObligatoria: row.esObligatoria,
+          dimension: row.dimensionID ? {
+            dimensionID: row.dimensionID,
+            nombre: row.nombreDimension
+          } : null,
+          nivel: row.nivelID ? {
+            nivelID: row.nivelID,
+            nombre: row.nombreNivel,
+            numero: row.numeroNivel
+          } : null,
+          progresoEmpleado: row.progresoID ? {
+            progresoID: row.progresoID,
+            fechaInicio: row.fechaInicioProgreso,
+            fechaFinalizacion: row.fechaFinalizacionProgreso,
+            estado: row.estadoTarea,
+            tiempoCompletado: row.tiempoCompletado
+          } : null,
+          objetos: row.objetoID ? [{
+            objetoID: row.objetoID,
+            nombre: row.nombreObjeto,
+            path: row.pathObjeto
+          }] : []
+        });
+      }
+      return acc;
+    }, []);
 
     return tareas;
   } catch (error) {
