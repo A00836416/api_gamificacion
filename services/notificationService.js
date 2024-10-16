@@ -4,7 +4,7 @@ export async function obtenerNotificacionesPorUsuario(usuarioID) {
     try {
         const result = await sql.query`
         SELECT * FROM vw_NotificacionesUsuario
-        WHERE usuarioID = ${usuarioID}
+        WHERE receptorID = ${usuarioID}
         ORDER BY fechaCreacion DESC
     `;
         console.log(result);

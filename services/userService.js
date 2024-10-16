@@ -88,4 +88,18 @@ async function updateUser(userData) {
     }
 }
 
-export { createUser, findUserByUserName, updateLastAccess, findUserById, updateUser, updateUserPassword };
+async function updateProfilePicture(usuarioID, fotoPerfilPath) {
+    try {
+        await sql.query`
+            UPDATE Usuario
+            SET fotoPerfil = ${fotoPerfilPath}, updatedAt = GETDATE()
+            WHERE usuarioID = ${usuarioID}
+        `;
+        return { success: true };
+    } catch (error) {
+        console.error('Error al actualizar la foto de perfil:', error);
+        throw error;
+    }
+}
+
+export { createUser, findUserByUserName, updateLastAccess, findUserById, updateUser, updateUserPassword, updateProfilePicture };

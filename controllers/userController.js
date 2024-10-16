@@ -1,4 +1,4 @@
-import { findUserById, updateUser } from '../services/userService.js';
+import { findUserById, updateUser, updateProfilePicture } from '../services/userService.js';
 
 function isValidUUID(uuid) {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -55,5 +55,27 @@ export async function updateUserInfo(req, res) {
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
         res.status(500).json({ error: 'Error al actualizar información del usuario' });
+    }
+}
+
+export async function updateUserProfilePicture(req, res) {
+    try {
+        const usuarioID = req.user.id;
+        const { fotoPerfilPath } = req.body;
+
+        if (!fotoPerfilPath) {
+            return res.status(400).json({ error: 'La ruta de la foto de perfil es requerida' });
+        }
+
+        const result = await updateProfilePicture(usuarioID, fotoPerfilPath);
+
+        if (result.success) {
+            res.json({ message: 'Foto de perfil actualizada exitosamente' });
+        } else {
+            res.status(500).json({ error: 'Error al actualizar la foto de perfil' });
+        }
+    } catch (error) {
+        console.error('Error al actualizar la foto de perfil:', error);
+        res.status(500).json({ error: 'Error al actualizar la foto de perfil' });
     }
 }
