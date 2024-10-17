@@ -13,6 +13,7 @@ import empleadoRoutes from './routes/empleadoRoutes.js';
 import progresoTareaRoutes from './routes/progresoTareaRoutes.js';
 import notificacionesRoutes from './routes/notification.js';
 import rankingRoutes from './routes/rankingRoutes.js';
+import objetoOficinaRoutes from './routes/objetoOficinaRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -80,6 +81,8 @@ app.use('/api/empleados', empleadoRoutes);
 app.use('/api/progreso-tarea', progresoTareaRoutes);
 app.use('/api/notificaciones', authMiddleware, notificacionesRoutes);
 app.use('/api/ranking-semanal', authMiddleware, rankingRoutes);
+app.use('/api/objeto-oficina', authMiddleware, objetoOficinaRoutes);
+
 
 app.get('/protected', authMiddleware, (req, res) => {
   res.json({ message: 'Esta es una ruta protegida', userId: req.user.id, rol: req.user.rol });
